@@ -1,0 +1,33 @@
+- hosts: all
+  tasks:
+    - name: Ensure Nginx is installed and it is the latest version
+      apt: 
+         name: nginx 
+         state: latest
+      become: yes
+
+    - name: Start Nginx
+      service:
+          name: nginx
+          state: started
+      become: yes
+    
+    - name: Allow NGINX
+      shell: ufw allow 'Nginx HTTP'
+      become: yes
+    
+    - name: Change default NGINX page
+      shell: bash -c 'echo IP > /var/www/html/index.html'
+      become: yes
+
+    - name: Getting IP
+      shell: hostname
+      register: output
+      become: yes
+
+    - name: Check IP and insert text into index.html
+      lineinfile:
+          path: /var/www/html/index.html
+          regexp: 'IP'
+          line: '<h1> $(output) </h1>'
+      become: yes
